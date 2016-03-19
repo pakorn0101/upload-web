@@ -1,0 +1,96 @@
+
+<html>
+	<head>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+		<script src="https://sdk.amazonaws.com/js/aws-sdk-2.0.0-rc11.min.js"></script>
+		<script type="text/javascript">
+			// See the Configuring section to configure credentials in the SDK
+
+			AWS.config.update({accessKeyId: 'AKIAINXVZ3O32VMCNZXQ', secretAccessKey: 'iTb75GVkV+XHhOLy1WcpUr6yn8Ri7xL4Q8gdY/Pe', region: 'us-east-1'});
+			// Configure your region
+			// AWS.config.region = ";
+		</script>
+		<style type="text/css">
+		  .navbar-nav {
+		    width: 100%;
+		    text-align: center;
+		    > li {
+		      float: none;
+		      display: inline-block;
+		    }
+		  }
+		</style>
+	</head>
+	<body class="container">
+		<nav class="navbar navbar-default" role="navigation">
+		  <div class="container-fluid">
+		    <!-- Brand and toggle get grouped for better mobile display -->
+		    <div class="navbar-header">
+		      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+		        <span class="sr-only">Toggle navigation</span>
+		      </button>
+		      <a class="navbar-brand" href="#">UPLOAD FILE FREE!!!</a>
+		    </div>
+		  </div><!-- /.container-fluid -->
+		</nav>
+		
+		<table align="center">
+			<tr>
+				<td>
+					<input type="file" id="file-chooser"/>
+				</td>
+				<td>
+					<button id="upload-button" class="btn btn-danger">Upload to S3</button>
+				</td>
+			</tr>
+		</table><br>
+		<div id="results"></div>
+		<script type="text/javascript">
+			var s3BucketName = 'pakorn'
+			var bucket = new AWS.S3({params: {Bucket: 'pakorn'}})//BucketName
+			var fileChooser = document.getElementById('file-chooser')
+			var button = document.getElementById('upload-button')
+			var results = document.getElementById('results')
+			button.addEventListener('click', function() {
+				var file = fileChooser.files[0]
+				if (file) {
+					results.innerHTML = ""
+
+					var params = {Key: file.name, ContentType: file.type, Body: file}
+					bucket.putObject(params, function (err, data) {
+					results.innerHTML = err ? err : 'UPLOADED.'
+					window.location.assign("s3.html")
+					})
+				}
+				else {
+					results.innerHTML = 'Nothing to upload.'
+				}
+			}, false)
+		</script>
+		    <div id="status"></div>
+		    <ul id="objects"></ul>
+		    <script type="text/javascript">
+		    /*global AWS*/
+			var bucket = new AWS.S3({
+			  params: {
+			    Bucket: s3BucketName
+			  }
+			}) // BucketName
+			bucket.listObjects(function (err, data) {
+			  if (err) {
+			    document.getElementById('status').innerHTML = 'Could not load objects from S3'
+			  } else {
+			    document.getElementById('status').innerHTML = '<ul class="list-group" style="margin: 0;width: auto;text-align: center;font-size: 18px;padding-bottom: 2%;">You have ' + data.Contents.length + ' files upload in your S3'
+			    for (var i = 0; i < data.Contents.length; i++) {
+			      console.log(data.Name)
+			      document.getElementById('objects').innerHTML +='<li class="list-group-item" style="width:70%;margin:auto;">' + data.Contents[i].Key + '</li>'//"<img src='https://s3.amazonaws.com/"+data.Name+"/"+data.Contents[i].Key+"'/>" + '</li>'
+			      // document.getElementById('objects').innerHTML += '<center>' + "<img src='https://s3.amazonaws.com/" + data.Name + '/' + data.Contents[i].Key + "'/>" + '</center><br>'
+			    }
+			    
+			    document.getElementById('objects').innerHTML +='</ul>'
+			  }
+			})
+
+		</script>
+	</body>
+</html>
